@@ -1,0 +1,12 @@
+[submodule "box2d"]
+	path = box2d
+	url = git@github.com:erincatto/box2d.git
+[submodule "SDL"]
+	path = SDL
+	url = git@github.com:libsdl-org/SDL.git
+[submodule "stb"]
+	path = stb
+	url = git@github.com:nothings/stb.git
+[submodule "imgui"]
+	path = imgui
+	url = git@github.com:ocornut/imgui.git
