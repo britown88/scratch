@@ -7,6 +7,6 @@ file(GLOB scratch_HEADERS ${SDL_BINARY_DIR}/include/SDL2
 
 add_executable(scratch ${scratch_SOURCES})
 
-target_link_libraries(scratch PRIVATE SDL2::SDL2 box2d scratch_imgui GL)
+target_link_libraries(scratch PRIVATE SDL2::SDL2 box2d scratch_imgui ${OPENGL_LIBRARIES})
 
 target_include_directories(scratch PRIVATE ${scratch_HEADERS})

@@ -18,3 +18,5 @@ if(imgui_ADDED)
   add_library(scratch_imgui STATIC ${imgui_SOURCES})
   target_include_directories(scratch_imgui PUBLIC ${imgui_SOURCE_DIR})
 endif()
+
+find_package(OpenGL REQUIRED)
