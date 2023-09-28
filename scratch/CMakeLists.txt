@@ -1,5 +1,3 @@
-add_compile_options(-Wall -Werror -O2)
-
 # Add all source files to one variable
 file(GLOB scratch_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 # Add all header files, including the ones from our dependencies into a variable
