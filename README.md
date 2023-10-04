@@ -29,7 +29,7 @@ Notes:
 - `git clone https://github.com/britown88/scratch.git`
 - `cd scratch`
 - `git submodule update --init`
-- `make`
+- `make -j$(nproc)`
 - The `scratch.exe` binary will end up in the `bin/` directory
 
 ## Ubuntu/Debian Linux Instructions:
@@ -37,5 +37,13 @@ Notes:
 - `git clone https://github.com/britown88/scratch.git`
 - `cd scratch`
 - `git submodule update --init`
-- `make`
+- `make -j$(nproc)`
+- The `scratch` binary will end up in the `bin/` directory
+
+## macOS Instructions:
+- Install prerequisites: `brew install sdl2 coreutils`
+- `git clone https://github.com/britown88/scratch.git`
+- `cd scratch`
+- `git submodule update --init`
+- `make -j$(nproc)`
 - The `scratch` binary will end up in the `bin/` directory
