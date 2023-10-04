@@ -3,6 +3,26 @@ CC:=gcc
 CXX:=g++
 STRIP:=strip
 RM:=rm -f
+DEBUG?=0
+CLANG?=0
+CROSS?=
+
+ifeq ($(CLANG), 1)
+    CC:=clang
+    CXX:=clang++
+    STRIP:=llvm-strip
+endif
+
+ifneq ($(CROSS),)
+    ifeq ($(CLANG), 1)
+        CFLAGS:=$(CFLAGS) --target=$(CROSS)
+        CPPFLAGS:=$(CPPFLAGS) --target=$(CROSS)
+    else
+        CC:=$(CROSS)$(CC)
+        CXX:=$(CROSS)$(CXX)
+        STRIP:=$(CROSS)$(STRIP)
+    endif
+endif
 
 BASE_DIR:=..
 SRC_DIR:=.
@@ -18,28 +38,48 @@ CXX_OBJ:=$(patsubst %.cpp, $(OBJ_DIR)/%.o, $(CXX_SRC))
 OUT:=$(BIN_DIR)/scratch
 INCLUDES:=$(INCLUDES) -I$(SRC_DIR) $(shell sdl2-config --cflags) -I$(BASE_DIR)/stb -I$(BASE_DIR)/box2d/include -I$(BASE_DIR)/imgui
 VPATH:=$(SRC_DIR):$(BASE_DIR)/stb
-CPPFLAGS:=$(CPPFLAGS) $(INCLUDES) -g -O2 -Wall
-ifeq ($(shell uname -o), Msys)
+CFLAGS:=$(CFLAGS) $(INCLUDES)
+CPPFLAGS:=$(CPPFLAGS) $(INCLUDES) -std=c++11
+ifeq ($(DEBUG), 1)
+    CFLAGS:=$(CFLAGS) -g -O0 -DDEBUG -Wall
+    CPPFLAGS:=$(CPPFLAGS) -g -O0 -DDEBUG -Wall
+else
+    CFLAGS:=$(CFLAGS) -O2 -DNDEBUG -Wall
+    CPPFLAGS:=$(CPPFLAGS) -O2 -DNDEBUG -Wall
+endif
+UNAME_S?=$(shell uname -s)
+ifeq ($(UNAME_S), Darwin)
+    UNAME_O?=Darwin
+else
+    UNAME_O?=$(shell uname -o)
+endif
+ifeq ($(UNAME_O), Msys)
     OUT:=$(OUT).exe
-    LDLIBS:=$(LDLIBS) -lopengl32
+    LDLIBS:=$(LDLIBS) -lopengl32 -static-libgcc -static-libstdc++ -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic
+    COPY_FILES:=$(MSYSTEM_PREFIX)/bin/SDL2.dll
+else ifeq ($(UNAME_S), Darwin)
+    LDLIBS:=$(LDLIBS) -framework OpenGL
+    COPY_FILES:=
 else
     LDLIBS:=$(LDLIBS) -ldl -lGL
+    COPY_FILES:=
 endif
 LDLIBS:=$(LDLIBS) $(shell sdl2-config --libs) $(BIN_DIR)/scratch_imgui.a $(BIN_DIR)/scratch_box2d.a
 
 all: $(OUT)
 
 $(C_OBJ): $(OBJ_DIR)/%.o: %.c | $(OBJ_DIR)
-	$(CC) $(CPPFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(CXX_OBJ): $(OBJ_DIR)/%.o: %.cpp | $(OBJ_DIR)
 	$(CXX) $(CPPFLAGS) -c $< -o $@
 
 $(OUT): $(C_OBJ) $(CXX_OBJ) | $(BIN_DIR)
 	$(CXX) $(LDFLAGS) -o $@ $+ $(LDLIBS)
+	if [ -n "$(COPY_FILES)" ]; then for file in $(COPY_FILES); do cp -vf $$file $(BIN_DIR); done; fi
 
 $(OBJ_DIR) $(BIN_DIR):
-	mkdir -p $@
+	mkdir -pv $@
 
 strip: $(OUT)
 	$(STRIP) $^

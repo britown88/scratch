@@ -2,6 +2,23 @@
 CXX:=g++
 AR:=ar
 RM:=rm -f
+DEBUG?=0
+CLANG?=0
+CROSS?=
+
+ifeq ($(CLANG), 1)
+    CXX:=clang++
+    AR:=llvm-ar
+endif
+
+ifneq ($(CROSS),)
+    ifeq ($(CLANG), 1)
+        CPPFLAGS:=$(CPPFLAGS) --target=$(CROSS)
+    else
+        CXX:=$(CROSS)$(CXX)
+        AR:=$(CROSS)$(AR)
+    endif
+endif
 
 BASE_DIR:=..
 SRC_DIR:=$(BASE_DIR)/imgui
@@ -17,7 +34,12 @@ OBJ:=$(patsubst %.cpp, $(OBJ_DIR)/%.o, $(SRC))
 OUT:=$(BIN_DIR)/scratch_imgui.a
 INCLUDES:=$(INCLUDES) -I$(SRC_DIR)
 VPATH:=$(SRC_DIR)
-CPPFLAGS:=$(CPPFLAGS) $(INCLUDES) -g -O2 -Wall
+CPPFLAGS:=$(CPPFLAGS) $(INCLUDES) -std=c++11
+ifeq ($(DEBUG), 1)
+    CPPFLAGS:=$(CPPFLAGS) -g -O0 -DDEBUG -Wall
+else
+    CPPFLAGS:=$(CPPFLAGS) -O2 -DNDEBUG -Wall
+endif
 
 all: $(OUT)
 
@@ -28,7 +50,7 @@ $(OUT): $(OBJ) | $(BIN_DIR)
 	$(AR) rcs $@ $^
 
 $(OBJ_DIR) $(BIN_DIR):
-	mkdir -p $@
+	mkdir -pv $@
 
 clean:
 	$(RM) -r $(OBJ_DIR) $(OUT)
