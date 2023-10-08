@@ -1,27 +1,32 @@
 
-CC:=gcc
-CXX:=g++
-STRIP:=strip
-RM:=rm -f
 DEBUG?=0
 CLANG?=0
 CROSS?=
+RM:=rm -f
 
-ifeq ($(CLANG), 1)
-    CC:=clang
-    CXX:=clang++
-    STRIP:=llvm-strip
+UNAME_S?=$(shell uname -s)
+ifeq ($(UNAME_S), Darwin)
+    UNAME_O?=Darwin
+else
+    UNAME_O?=$(shell uname -o)
+endif
+
+ifneq ($(GITHUB_ACTIONS), true)
+    ifeq ($(CLANG), 1)
+        CC:=clang
+        CXX:=clang++
+        STRIP:=llvm-strip
+    else
+        CC:=gcc
+        CXX:=g++
+        STRIP:=strip
+    endif
 endif
 
 ifneq ($(CROSS),)
-    ifeq ($(CLANG), 1)
-        CFLAGS:=$(CFLAGS) --target=$(CROSS)
-        CPPFLAGS:=$(CPPFLAGS) --target=$(CROSS)
-    else
-        CC:=$(CROSS)$(CC)
-        CXX:=$(CROSS)$(CXX)
-        STRIP:=$(CROSS)$(STRIP)
-    endif
+    CC:=$(CROSS)-$(CC)
+    CXX:=$(CROSS)-$(CXX)
+    STRIP:=$(CROSS)-$(STRIP)
 endif
 
 BASE_DIR:=..
@@ -47,15 +52,10 @@ else
     CFLAGS:=$(CFLAGS) -O2 -DNDEBUG -Wall
     CPPFLAGS:=$(CPPFLAGS) -O2 -DNDEBUG -Wall
 endif
-UNAME_S?=$(shell uname -s)
-ifeq ($(UNAME_S), Darwin)
-    UNAME_O?=Darwin
-else
-    UNAME_O?=$(shell uname -o)
-endif
+
 ifeq ($(UNAME_O), Msys)
     OUT:=$(OUT).exe
-    LDLIBS:=$(LDLIBS) -lopengl32 -static-libgcc -static-libstdc++ -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic
+    LDLIBS:=$(LDLIBS) -mwindows -lopengl32 -static-libgcc -static-libstdc++ -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic
     COPY_FILES:=$(MSYSTEM_PREFIX)/bin/SDL2.dll
 else ifeq ($(UNAME_S), Darwin)
     LDLIBS:=$(LDLIBS) -framework OpenGL

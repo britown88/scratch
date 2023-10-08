@@ -1,23 +1,29 @@
 
-CXX:=g++
-AR:=ar
-RM:=rm -f
 DEBUG?=0
 CLANG?=0
 CROSS?=
+RM:=rm -f
 
-ifeq ($(CLANG), 1)
-    CXX:=clang++
-    AR:=llvm-ar
+UNAME_S?=$(shell uname -s)
+ifeq ($(UNAME_S), Darwin)
+    UNAME_O?=Darwin
+else
+    UNAME_O?=$(shell uname -o)
+endif
+
+ifneq ($(GITHUB_ACTIONS), true)
+    ifeq ($(CLANG), 1)
+        CXX:=clang++
+        AR:=llvm-ar
+    else
+        CXX:=g++
+        AR:=ar
+    endif
 endif
 
 ifneq ($(CROSS),)
-    ifeq ($(CLANG), 1)
-        CPPFLAGS:=$(CPPFLAGS) --target=$(CROSS)
-    else
-        CXX:=$(CROSS)$(CXX)
-        AR:=$(CROSS)$(AR)
-    endif
+    CXX:=$(CROSS)-$(CXX)
+    AR:=$(CROSS)-$(AR)
 endif
 
 BASE_DIR:=..
