@@ -1,9 +1,14 @@
 # Add all source files to one variable
 file(GLOB scratch_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 # Add all header files, including the ones from our dependencies into a variable
-file(GLOB scratch_HEADERS ${SDL_BINARY_DIR}/include/SDL2
-     ${SDL_BINARY_DIR}/include-config-/SDL2 ${imgui_SOURCE_DIR}
-     ${stb_SOURCE_DIR})
+file(
+  GLOB
+  scratch_HEADERS
+  ${SDL_BINARY_DIR}/include/SDL2
+  ${SDL_BINARY_DIR}/include-config-/SDL2
+  ${imgui_SOURCE_DIR}
+  ${stb_SOURCE_DIR}
+  ${box2d_SOURCE_DIR}/include/box2d)
 
 add_executable(scratch ${scratch_SOURCES})
 
