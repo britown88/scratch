@@ -1,4 +1,5 @@
 # scratch
+A simple C++ starter project for getting going with native game development.  Starts with SDL2, ImGui, STB, and Box2D linked and opens a window with the ImGui demo with no configuration.  This was originally intended to be a starter for Windows Developers using Visual Studio but makefiles have been added if you want to use Linux or Mac.  If you're used to CMAKE, you can also checkout christiannicola's [CMAKE Integration Fork](https://github.com/christiannicola/scratch/tree/cmake-integration)!
 
 ## Windows Instructions:
 
